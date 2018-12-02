@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sys/time.h>
+#include <string.h>
 
 #define STRLEN 26
 #define LINELEN (STRLEN + 1)
@@ -10,21 +11,25 @@ char file[LINELEN*INPLEN];
 void ex1() {
     int f2 = 0;
     int f3 = 0;
+    int counts[STRLEN];
+    char* p;
 
     for (int i = 0; i < INPLEN; i++) {
-        char* p = &file[i*LINELEN];
-        int counts[STRLEN] = {0};
+        p = &file[i*LINELEN];
+        memset(&counts[0], 0, sizeof(int)*STRLEN);
+
         for (int i = 0; i < STRLEN; i++) counts[p[i] - 'a']++;
         int c2 = 0;
         int c3 = 0;
         for (int i = 0; i < STRLEN; i++) {
-            if (counts[i] == 3) c3 |= 1; 
-            else if (counts[i] == 2) c2 |= 1;
+            int d3 = counts[i] == 3;
+            int d2 = counts[i] == 2 && !d3;
+            c2 |= d2;
+            c3 |= d3;
         }
         f2 += c2;
         f3 += c3;
     }
-
     printf("ex1. answer = %d\n", f2 * f3);
 }
 
@@ -44,8 +49,7 @@ void ex2() {
             q = &file[j * LINELEN];
             int diff = 0;
             for (int i = 0; i < STRLEN; i++) {
-                if (p[i] != q[i]) diff++;
-                if (diff > 1) break;
+                diff += (p[i] != q[i]);
             }
             if (diff == 1) {
                 prints(p, q);
@@ -53,49 +57,6 @@ void ex2() {
             }
         }
     }
-}
-
-void ex_fused() {
-
-    char *p; char *q;
-    int f2 = 0;
-    int f3 = 0;
-    int done = 0;
-
-    for (int i = 0; i < INPLEN; i++) {
-        p = &file[i*LINELEN];
-
-        /// EX 1
-        int counts[STRLEN] = {0};
-        for (int i = 0; i < STRLEN; i++) counts[p[i] - 'a']++;
-        int c2 = 0;
-        int c3 = 0;
-        for (int i = 0; i < STRLEN; i++) {
-            if (counts[i] == 3) c3 |= 1; 
-            else if (counts[i] == 2) c2 |= 1;
-        }
-        f2 += c2;
-        f3 += c3;
-
-        /// EX 2
-        if (done) continue;
-
-        for (int j = i + 1; j < INPLEN; j++) {
-            q = &file[j*LINELEN];
-            int diff = 0;
-            for (int i = 0; i < STRLEN; i++) {
-                if (p[i] != q[i]) diff++;
-                if (diff > 1) break;
-            }
-            if (diff == 1) {
-                prints(p, q);
-                done = 1;
-                break;
-            }
-        }
-    }
-    printf("ex1. answer = %d\n", f2 * f3);
-
 }
 
 int main() {
@@ -106,9 +67,8 @@ int main() {
     struct timeval begin;
     gettimeofday(&begin, NULL);
     
-    // ex1();
-    // ex2();
-    ex_fused();
+    ex1();
+    ex2();
 
     struct timeval end;
     gettimeofday(&end, NULL);
