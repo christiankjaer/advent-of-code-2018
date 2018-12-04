@@ -1,11 +1,11 @@
 #include <stdlib.h>
-#include <sys/time.h>
 #include <stdio.h>
 #include <string.h>
 #include "khash.h"
 
-char *robot_log[1085];
-// An associative data structure would be better.
+#define INPUT 1085
+
+char *robot_log[INPUT];
 
 int compare(const void* s1, const void* s2) {
     // Sort by the data (first 17 chars)
@@ -24,17 +24,14 @@ int main() {
     int i = 0;
     while (getline(&line, &len, fp) != -1) {
         robot_log[i++] = line;
-        line = NULL;
-        len = 0;
+        line = NULL; len = 0;
     }
-    struct timeval begin;
-    gettimeofday(&begin, NULL);
 
-    qsort(robot_log, 1085, sizeof(char*), compare);
+    qsort(robot_log, INPUT, sizeof(char*), compare);
 
     int guard;
     i = 0;
-    while (i < 1085) {
+    while (i < INPUT) {
         // Skip the ids, but save it.
         if(sscanf(&robot_log[i][26], "%d", &guard) == 1) {
             khint_t k;
@@ -58,44 +55,38 @@ int main() {
         i += 2;
     }
 
+    // Sleep for most lazy guard
     int most = 0;
+    // When he was least active
     int active;
-    for (khint_t k = kh_begin(sleep_map); k != kh_end(sleep_map); ++k) {
-        if (!kh_exist(sleep_map, k)) continue;
-        int* glist = kh_val(sleep_map, k);
+    // Ex2
+    // The most least active time
+    int mostactive = 0;
+    int guard2 = 0;
+    // Iteration variables
+    int* glist;
+    int tguard;
+    kh_foreach(sleep_map, tguard, glist, {
         int sleep = 0;
         int localactive = 0;
         for (int t = 0; t < 60; t++) {
             sleep += glist[t];
+            // Ex 1
             if (glist[t] > glist[localactive]) localactive = t;
-        }
-        if (sleep > most) {
-            most = sleep; guard = kh_key(sleep_map, k); active = localactive;
-        }
-    }
-
-    printf("Ex 1: %d\n", guard * active);
-
-    most = 0;
-    guard = 0;
-    for (khint_t k = kh_begin(sleep_map); k != kh_end(sleep_map); ++k) {
-        if (!kh_exist(sleep_map, k)) continue;
-        int* glist = kh_val(sleep_map, k);
-        for (int t = 0; t < 60; t++) {
-            if (glist[t] > glist[most]) {
-                guard = kh_key(sleep_map, k); most = t;
+            // Ex 2
+            if (glist[t] > glist[mostactive]) {
+                guard2 = tguard;
+                mostactive = t;
             }
         }
-    }
+        // Ex 1
+        if (sleep > most) {
+            most = sleep; guard = tguard; active = localactive;
+        }
+    });
 
-    printf("Ex 2: %d\n", guard * most);
-
-    struct timeval end;
-    gettimeofday(&end, NULL);
-    int begint =  begin.tv_sec * (int)1e6 + begin.tv_usec;
-    int endt =  end.tv_sec * (int)1e6 + end.tv_usec;
-
-    printf("took %d us\n", endt - begint);
+    printf("Ex 1: %d\n", guard * active);
+    printf("Ex 2: %d\n", guard2 * mostactive);
     return 0;
 
 }
