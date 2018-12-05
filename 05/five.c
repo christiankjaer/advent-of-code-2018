@@ -1,14 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <omp.h>
 
 #define INPUT 50000
 
 char input[INPUT];
 
-int ex1(char c) {
-
-    char b[INPUT];
+int ex1(char c, char* b) {
 
     int elems = 0;
     // filter
@@ -17,9 +16,7 @@ int ex1(char c) {
         b[elems++] = input[i];
     }
 
-    // Switch these buffers at each iteration.
     int changed;
-
     do {
         changed = 0;
         int i = 0;
@@ -39,7 +36,6 @@ int ex1(char c) {
             b[j++] = b[i++];
         }
         elems = j;
-
     } while(changed);
 
     return elems;
@@ -47,20 +43,24 @@ int ex1(char c) {
 
 int main() {
 
-    FILE *fp = fopen("input", "r");
-    fread(input, sizeof(char), INPUT, fp);
-
     struct timeval begin;
     gettimeofday(&begin, NULL);
 
-    int e1 = ex1('\0');
+    FILE *fp = fopen("input", "r");
+    fread(input, sizeof(char), INPUT, fp);
+
+    char** temp = malloc(sizeof(char*) * omp_get_max_threads());
+    for(int i = 0; i < omp_get_max_threads(); i++)
+        temp[i] = malloc(50000 * sizeof(char));
+
+    int e1 = ex1('\0', temp[0]);
     printf("ex1: %d\n", e1);
 
     int e2 = e1;
 
     #pragma omp parallel for reduction(min:e2)
     for (char c = 'a'; c <= 'z'; c++) {
-        int val = ex1(c);
+        int val = ex1(c, temp[omp_get_thread_num()]);
         if (val < e2) e2 = val;
     }
     printf("ex2: %d\n", e2); 
