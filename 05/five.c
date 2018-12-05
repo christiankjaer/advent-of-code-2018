@@ -5,10 +5,11 @@
 #define INPUT 50000
 
 char input[INPUT];
-char b1[INPUT];
-char b2[INPUT];
 
 int ex1(char c) {
+
+    char b1[INPUT];
+    char b2[INPUT];
 
     int elems = 0;
     // filter
@@ -28,22 +29,18 @@ int ex1(char c) {
         int i = 0;
         int j = 0;
         while (i < elems-1) {
-            char c1 = from[i];
-            char c2 = from[i+1];
+            char c1 = from[i++];
+            char c2 = from[i];
             if (c1 + 32 == c2 || c1 == c2 + 32) {
-                i += 2;
+                i++;
                 changed = 1;
                 continue;
             }
-            to[j] = c1;
-            i++;
-            j++;
+            to[j++] = c1;
         }
         // Handling the end.
         if (i == elems-1) {
-            to[j] = from[i];
-            j++;
-            i++;
+            to[j++] = from[i++];
         }
         elems = j;
         char* t = to;
@@ -66,13 +63,14 @@ int main() {
     int e1 = ex1('\0');
     printf("ex1: %d\n", e1);
 
-    int min = e1;
+    int e2 = e1;
 
+    #pragma omp parallel for reduction(min:e2)
     for (char c = 'a'; c <= 'z'; c++) {
-        int v = ex1(c);
-        if (v < min) min = v;
+        int val = ex1(c);
+        if (val < e2) e2 = val;
     }
-    printf("ex2: %d\n", min); 
+    printf("ex2: %d\n", e2); 
 
     struct timeval end;
     gettimeofday(&end, NULL);
