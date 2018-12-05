@@ -19,14 +19,13 @@ int ex1(char c) {
         b1[elems++] = input[i];
     }
 
+    // Switch these buffers at each iteration.
     char* from = b1;
     char* to = b2;
 
-    int changed = 0;
+    int changed;
 
     do {
-        memset(to, elems, sizeof(char));
-
         changed = 0;
         int i = 0;
         int j = 0;
@@ -54,22 +53,22 @@ int ex1(char c) {
         from = t;
 
     } while(changed);
-    return elems;
 
+    return elems;
 }
 
 int main() {
 
     FILE *fp = fopen("input", "r");
-
     int c = fread(input, sizeof(char), INPUT, fp);
 
     struct timeval begin;
     gettimeofday(&begin, NULL);
 
-    printf("ex1: %d\n", ex1('\0'));
+    int e1 = ex1('\0');
+    printf("ex1: %d\n", e1);
 
-    int min = 10000000;
+    int min = e1;
 
     for (char c = 'a'; c <= 'z'; c++) {
         int v = ex1(c);
