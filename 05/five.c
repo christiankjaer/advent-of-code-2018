@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 #include <sys/time.h>
 
 #define INPUT 50000
@@ -60,7 +58,7 @@ int ex1(char c) {
 int main() {
 
     FILE *fp = fopen("input", "r");
-    int c = fread(input, sizeof(char), INPUT, fp);
+    fread(input, sizeof(char), INPUT, fp);
 
     struct timeval begin;
     gettimeofday(&begin, NULL);
