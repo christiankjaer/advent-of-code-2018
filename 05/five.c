@@ -8,20 +8,16 @@ char input[INPUT];
 
 int ex1(char c) {
 
-    char b1[INPUT];
-    char b2[INPUT];
+    char b[INPUT];
 
     int elems = 0;
     // filter
     for (int i = 0; i < INPUT; i++) {
         if (input[i] == c || input[i] == c-32) continue;
-        b1[elems++] = input[i];
+        b[elems++] = input[i];
     }
 
     // Switch these buffers at each iteration.
-    char* from = b1;
-    char* to = b2;
-
     int changed;
 
     do {
@@ -29,23 +25,20 @@ int ex1(char c) {
         int i = 0;
         int j = 0;
         while (i < elems-1) {
-            char c1 = from[i++];
-            char c2 = from[i];
+            char c1 = b[i++];
+            char c2 = b[i];
             if (c1 + 32 == c2 || c1 == c2 + 32) {
                 i++;
                 changed = 1;
                 continue;
             }
-            to[j++] = c1;
+            b[j++] = c1;
         }
         // Handling the end.
         if (i == elems-1) {
-            to[j++] = from[i++];
+            b[j++] = b[i++];
         }
         elems = j;
-        char* t = to;
-        to = from;
-        from = t;
 
     } while(changed);
 
