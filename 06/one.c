@@ -3,7 +3,9 @@
 #include <sys/time.h>
 #include <string.h>
 
-#define INPUT 400
+#define INPUT 360
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 int data[INPUT][INPUT];
 int tmp[INPUT][INPUT];
@@ -16,7 +18,6 @@ int main() {
 
     struct timeval begin;
     gettimeofday(&begin, NULL);
-
     
     char *line = NULL;
     size_t len;
@@ -40,7 +41,6 @@ int main() {
 
     do {
         changed = 0;
-#pragma omp parallel for
         for (int y = 1; y <= maxy; y++) {
             for (int x = 1; x <= maxx; x++) {
                 if (data[y][x] != 0) {
@@ -54,7 +54,7 @@ int main() {
 
                 int v = 0;
                 changed = 1;
-                
+
                 if (u != 0) {
                     v = (p(u,l) && p(u,d) && p(u,r)) ? u : -1;
                 } else if (l != 0) {
@@ -102,7 +102,6 @@ int main() {
     int endt =  end.tv_sec * (int)1e6 + end.tv_usec;
 
     printf("took %d us\n", endt - begint);
-
 
     free(line);
     free(hist);
